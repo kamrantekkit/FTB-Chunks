@@ -222,12 +222,17 @@ public class ClaimedChunkManagerImpl implements ClaimedChunkManager {
 				}
 			}
 
+			boolean prevented;
+			if (policy.isOverride()) {
+				prevented = policy.shouldPreventInteraction();
+			} else {
+				boolean hasBypass = getBypassProtection(player.getUUID());
+				if (hasBypass) {
+					return false;
+				}
 
-			boolean prevented = policy.isOverride() ?
-					policy.shouldPreventInteraction() || !teamOfflineProtection :
-					!player.isSpectator() && (isFake || !getBypassProtection(player.getUUID()));
-
-			System.out.println(prevented);
+				prevented = (!player.isSpectator() && (isFake)) || (teamOfflineProtection);
+			}
 
 			if (prevented && isFake) {
 				chunk.getTeamData().logPreventedAccess(player, System.currentTimeMillis());

@@ -9,7 +9,7 @@ version = "${version}"
 displayName = "FTB Chunks"
 authors = "FTB Team"
 description = '''
-Claim chunks to protect your base from griefers! test
+Claim chunks to protect your base from griefers! Patched by kamrantekkit for team offline proteciton
 '''
 # logoFile="logo.png"
 license = "All Rights Reserved"

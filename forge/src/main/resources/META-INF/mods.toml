@@ -9,7 +9,7 @@ version = "${version}"
 displayName = "FTB Chunks"
 authors = "FTB Team"
 description = '''
-Claim chunks to protect your base from griefers!
+Claim chunks to protect your base from griefers! test
 '''
 # logoFile="logo.png"
 license = "All Rights Reserved"

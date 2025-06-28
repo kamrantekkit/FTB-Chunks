@@ -198,9 +198,10 @@ public class ClaimedChunkManagerImpl implements ClaimedChunkManager {
 
 	@Override
 	public boolean shouldPreventInteraction(@Nullable Entity actor, InteractionHand hand, BlockPos pos, Protection protection, @Nullable Entity targetEntity) {
-		if (!(actor instanceof ServerPlayer player) || FTBChunksWorldConfig.DISABLE_PROTECTION.get() || player.level() == null) {
+		if (!(actor instanceof ServerPlayer player) || (FTBChunksWorldConfig.DISABLE_PROTECTION.get() && !FTBChunksWorldConfig.ENABLE_TEAM_OFFLINE_PROTECTION.get()) || player.level() == null ) {
 			return false;
 		}
+
 
 		boolean isFake = PlayerHooks.isFake(player);
 		if (isFake && FTBChunksWorldConfig.FAKE_PLAYERS.get().isOverride()) {
@@ -210,9 +211,24 @@ public class ClaimedChunkManagerImpl implements ClaimedChunkManager {
 		ClaimedChunkImpl chunk = getChunk(new ChunkDimPos(player.level(), pos));
 		if (chunk != null) {
 			ProtectionPolicy policy = protection.getProtectionPolicy(player, pos, hand, chunk, targetEntity);
+
+			boolean teamOfflineProtection = false;
+			if (FTBChunksWorldConfig.ENABLE_TEAM_OFFLINE_PROTECTION.get()) {
+				Team team = chunk.getTeamData().getTeam();
+				if (team != null) {
+					Collection<ServerPlayer> onlineMembers = team.getOnlineMembers();
+					teamOfflineProtection = onlineMembers.isEmpty();
+
+				}
+			}
+
+
 			boolean prevented = policy.isOverride() ?
-					policy.shouldPreventInteraction() :
+					policy.shouldPreventInteraction() || !teamOfflineProtection :
 					!player.isSpectator() && (isFake || !getBypassProtection(player.getUUID()));
+
+			System.out.println(prevented);
+
 			if (prevented && isFake) {
 				chunk.getTeamData().logPreventedAccess(player, System.currentTimeMillis());
 			}

@@ -216,9 +216,7 @@ public class ClaimedChunkManagerImpl implements ClaimedChunkManager {
 			if (FTBChunksWorldConfig.ENABLE_TEAM_OFFLINE_PROTECTION.get()) {
 				Team team = chunk.getTeamData().getTeam();
 				if (team != null) {
-					Collection<ServerPlayer> onlineMembers = team.getOnlineMembers();
-					teamOfflineProtection = onlineMembers.isEmpty();
-
+					teamOfflineProtection = chunk.getTeamData().hasReachedProtectionArmingTime();
 				}
 			}
 

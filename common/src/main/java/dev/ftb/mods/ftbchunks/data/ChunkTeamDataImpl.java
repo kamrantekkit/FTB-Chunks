@@ -58,12 +58,14 @@ public class ChunkTeamDataImpl implements ChunkTeamData {
 	private int extraForceLoadChunks;
 	private Boolean canForceLoadChunks;
 	private final Map<UUID,TeamMemberData> memberData;
-
 	private int prevChunkX = Integer.MAX_VALUE;
 	private int prevChunkZ = Integer.MAX_VALUE;
 	private String lastChunkID = "";
 	private long lastLoginTime;
 	private Set<String> fakePlayerNameCache;
+	private long lastTimeTeamWentOffline = 0L;
+	private boolean isTeamOffline = false;
+	private boolean hasReachedProtectionArmingTime = false;
 
 	private Collection<ClaimedChunkImpl> claimedChunkCache;
 	private Collection<ClaimedChunkImpl> forcedChunkCache;
@@ -345,6 +347,7 @@ public class ChunkTeamDataImpl implements ChunkTeamData {
 		if (extraClaimChunks > 0 && !team.isPartyTeam()) tag.putInt("extra_claim_chunks", extraClaimChunks);
 		if (extraForceLoadChunks > 0 && !team.isPartyTeam()) tag.putInt("extra_force_load_chunks", extraForceLoadChunks);
 		tag.putLong("last_login_time", lastLoginTime);
+		tag.putLong("time_team_went_offline", lastTimeTeamWentOffline);
 
 		CompoundTag chunksTag = new CompoundTag();
 		for (ClaimedChunkImpl chunk : getClaimedChunks()) {
@@ -378,6 +381,7 @@ public class ChunkTeamDataImpl implements ChunkTeamData {
 		extraClaimChunks = tag.getInt("extra_claim_chunks");
 		extraForceLoadChunks = tag.getInt("extra_force_load_chunks");
 		lastLoginTime = tag.getLong("last_login_time");
+		lastTimeTeamWentOffline = tag.getLong("time_team_went_offline");
 		canForceLoadChunks = null;
 		claimedChunkCache = null;
 		forcedChunkCache = null;
@@ -517,6 +521,9 @@ public class ChunkTeamDataImpl implements ChunkTeamData {
 	}
 
 	public void setLastLoginTime(long when) {
+		this.setLastTimeTeamWentOffline(0);
+		this.isTeamOffline = false;
+
 		this.lastLoginTime = when;
 		markDirty();
 	}
@@ -527,6 +534,37 @@ public class ChunkTeamDataImpl implements ChunkTeamData {
 			setLastLoginTime(System.currentTimeMillis());
 		}
 		return lastLoginTime;
+	}
+
+	public void setLastTimeTeamWentOffline(long when) {
+		this.lastTimeTeamWentOffline = when;
+		this.isTeamOffline = true;
+		markDirty();
+	}
+
+	public long getLastTimeTeamWentOffline() {
+		return lastTimeTeamWentOffline;
+	}
+
+	public boolean hasReachedProtectionArmingTime() {
+		if (!isTeamOffline) {
+			return false; // team is online, so no need to check arming time
+		}
+		Integer armingTimeInMins = FTBChunksWorldConfig.TEAM_PROTECTION_ARMING_TIME.get();
+		long armingTimeMillis =  armingTimeInMins * 60L * 1000L;
+		long timeSinceLastLogin = System.currentTimeMillis() - this.lastTimeTeamWentOffline;
+
+		//print arming time and time since last login for debugging in secounds
+		System.out.println("Arming time in seconds: " + armingTimeMillis + ", Time since last login in seconds: " + timeSinceLastLogin);
+		System.out.println(timeSinceLastLogin > armingTimeMillis);
+
+		if (timeSinceLastLogin > armingTimeMillis) {
+			this.hasReachedProtectionArmingTime = true;
+			return true;
+		} else {
+			this.hasReachedProtectionArmingTime = false;
+			return false;
+		}
 	}
 
 	@Override

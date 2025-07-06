@@ -248,6 +248,14 @@ public class FTBChunks {
 			ClaimedChunkManagerImpl.getInstance().clearForceLoadedCache();
 			LongRangePlayerTracker.INSTANCE.stopTracking(player);
 
+			Collection<ServerPlayer> onlineMembers = data.getTeam().getOnlineMembers();
+
+			if (onlineMembers.isEmpty() || onlineMembers.size() == 1) {
+				data.setLastTimeTeamWentOffline(System.currentTimeMillis());
+				System.out.println("Team " + data.getTeam().getShortName() + " went offline at " + data.getLastTimeTeamWentOffline());
+			}
+
+
 			if (data.getTeam().getOnlineMembers().size() == 1 && !data.canDoOfflineForceLoading()) {
 				// last player on the team to log out; unforce chunks if the team can't do offline chunk-loading
 				data.updateChunkTickets(false);

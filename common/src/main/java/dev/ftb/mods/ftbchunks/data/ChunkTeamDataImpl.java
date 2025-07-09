@@ -64,7 +64,7 @@ public class ChunkTeamDataImpl implements ChunkTeamData {
 	private long lastLoginTime;
 	private Set<String> fakePlayerNameCache;
 	private long lastTimeTeamWentOffline = 0L;
-	private boolean isTeamOffline = false;
+	private boolean isTeamOffline = true;
 	private boolean hasReachedProtectionArmingTime = false;
 
 	private Collection<ClaimedChunkImpl> claimedChunkCache;
@@ -346,6 +346,8 @@ public class ChunkTeamDataImpl implements ChunkTeamData {
 		tag.putInt("max_force_load_chunks", getMaxForceLoadChunks());
 		if (extraClaimChunks > 0 && !team.isPartyTeam()) tag.putInt("extra_claim_chunks", extraClaimChunks);
 		if (extraForceLoadChunks > 0 && !team.isPartyTeam()) tag.putInt("extra_force_load_chunks", extraForceLoadChunks);
+
+
 		tag.putLong("last_login_time", lastLoginTime);
 		tag.putLong("time_team_went_offline", lastTimeTeamWentOffline);
 

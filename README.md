@@ -1,3 +1,3 @@
 # FTB-Utilities-Chunks
 
-Use https://github.com/FTBTeam/FTB-Mods-Issues for any mod issues
+Fork of FTB chunks, with modifications to add team offline protection specifically for faction servers

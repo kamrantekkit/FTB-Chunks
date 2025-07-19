@@ -556,10 +556,6 @@ public class ChunkTeamDataImpl implements ChunkTeamData {
 		long armingTimeMillis =  armingTimeInMins * 60L * 1000L;
 		long timeSinceLastLogin = System.currentTimeMillis() - this.lastTimeTeamWentOffline;
 
-		//print arming time and time since last login for debugging in secounds
-		System.out.println("Arming time in seconds: " + armingTimeMillis + ", Time since last login in seconds: " + timeSinceLastLogin);
-		System.out.println(timeSinceLastLogin > armingTimeMillis);
-
 		if (timeSinceLastLogin > armingTimeMillis) {
 			this.hasReachedProtectionArmingTime = true;
 			return true;
